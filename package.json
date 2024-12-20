@@ -1,0 +1,24 @@
+{
+  "name": "pnp-toolkit",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "description": "",
+  "main": "lib/main.js",
+  "scripts": {
+    "start": "tsc -p . && node ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "canvas": "^3.0.1",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.12",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}
