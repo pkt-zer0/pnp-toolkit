@@ -4,8 +4,8 @@ import { createCanvas, ImageData } from 'canvas';
 export interface Region {
     x: number;
     y: number;
-    width: number;
-    height: number;
+    w: number;
+    h: number;
 }
 
 /** Create a region from top left (inclusive) and bottom right (exclusive) coordinates */
@@ -16,8 +16,8 @@ export function regionFromBounds(
     return {
         x: xFrom,
         y: yFrom,
-        width: xTo - xFrom,
-        height: yTo - yFrom,
+        w: xTo - xFrom,
+        h: yTo - yFrom,
     };
 }
 
@@ -45,7 +45,7 @@ export function regionsBetweenLines(horizontal: number[], vertical: number[]): R
     for (let h = 0; h < horizontal.length / 2; h += 1) {
         for (let v = 0; v < vertical.length / 2; v += 1) {
             result.push(regionFromBounds(
-                vertical[v * 2], vertical[v * 2 + 1],
+                vertical  [v * 2], vertical  [v * 2 + 1],
                 horizontal[h * 2], horizontal[h * 2 + 1],
             ));
         }
@@ -90,10 +90,10 @@ export function regionsBetweenSharedLines(horizontal: number[], vertical: number
 /** Extends the region outwards by an equal amount in each direction */
 export function padRegion(original: Region, padding: number): Region {
     return {
-        x:      original.x - padding,
-        y:      original.y - padding,
-        width:  original.width + 2 * padding,
-        height: original.height + 2 * padding,
+        x: original.x - padding,
+        y: original.y - padding,
+        w: original.w + 2 * padding,
+        h: original.h + 2 * padding,
     };
 }
 
@@ -101,14 +101,14 @@ export function padRegion(original: Region, padding: number): Region {
 export function mergeRegions(r1: Region, r2: Region): Region {
     const xFrom = Math.min(r1.x, r2.x);
     const yFrom = Math.min(r1.y, r2.y);
-    const xEnd = Math.max(r1.x + r1.width, r2.x + r2.width);
-    const yEnd = Math.max(r1.y + r1.height, r2.y + r2.height);
+    const xEnd  = Math.max(r1.x + r1.w, r2.x + r2.w);
+    const yEnd  = Math.max(r1.y + r1.h, r2.y + r2.h);
 
     return {
         x: xFrom,
         y: yFrom,
-        width: xEnd - xFrom,
-        height: yEnd - yFrom,
+        w: xEnd - xFrom,
+        h: yEnd - yFrom,
     };
 }
 
@@ -127,10 +127,10 @@ export function regionGrid(
     for (let r = 0; r < rows; r += 1) {
         for (let c = 0; c < columns; c += 1) {
             result.push({
-                x: initial.x + c * (initial.width + gapX),
-                y: initial.y + r * (initial.height + gapY),
-                width: initial.width,
-                height: initial.height,
+                x: initial.x + c * (initial.w + gapX),
+                y: initial.y + r * (initial.h + gapY),
+                w: initial.w,
+                h: initial.h,
             });
         }
     }
@@ -139,13 +139,13 @@ export function regionGrid(
 
 /** Extracts one section of the input image, defined by the given region. */
 export function crop(source: ImageData, region: Region): ImageData {
-    const { x, y, width, height } = region;
+    const { x, y, w, h } = region;
     const canvas = createCanvas(source.width, source.height);
 
     const ctx = canvas.getContext('2d');
     ctx.putImageData(source, 0, 0);
 
-    return ctx.getImageData(x, y, width, height);
+    return ctx.getImageData(x, y, w, h);
 }
 
 /** Extracts many sections of the input image, defined by the given regions. */
@@ -156,7 +156,7 @@ export function cropMany(source: ImageData, regions: Region[]): ImageData[] {
     ctx.putImageData(source, 0, 0);
 
     return regions.map(r => {
-        return ctx.getImageData(r.x, r.y, r.width, r.height);
+        return ctx.getImageData(r.x, r.y, r.w, r.h);
     });
 }
 
@@ -170,18 +170,18 @@ export function scaleTo(source: ImageData, targetWidth: number, targetHeight: nu
     const { width: srcWidth, height: srcHeight } = source;
 
     // Keep aspect ratio, fill target size
-    const widthRatio = targetWidth / srcWidth;
+    const widthRatio  = targetWidth / srcWidth;
     const heightRatio = targetHeight / srcHeight;
     const scaleFactor = Math.max(widthRatio, heightRatio);
 
-    const newWidth = Math.ceil(srcWidth * scaleFactor);
+    const newWidth  = Math.ceil(srcWidth * scaleFactor);
     const newHeight = Math.ceil(srcHeight * scaleFactor);
 
     // Need an extra canvas to pass ImageData to drawImage
     const srcCanvas = createCanvas(source.width, source.height);
-    const srcCtx = srcCanvas.getContext('2d');
     const outCanvas = createCanvas(newWidth, newHeight);
-    const outCtx = outCanvas.getContext('2d');
+    const srcCtx    = srcCanvas.getContext('2d');
+    const outCtx    = outCanvas.getContext('2d');
     outCtx.imageSmoothingEnabled = true;
 
     srcCtx.putImageData(source, 0, 0);
